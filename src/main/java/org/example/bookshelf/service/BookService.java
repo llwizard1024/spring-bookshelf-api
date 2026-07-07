@@ -1,16 +1,19 @@
 package org.example.bookshelf.service;
 
-import org.example.bookshelf.dto.book.UpdateBookRequest;
+import org.example.bookshelf.dto.book.BookResponse;
+import org.example.bookshelf.dto.book.CreateBookRequest;
+import org.example.bookshelf.dto.book.PatchBookRequest;
 import org.example.bookshelf.entity.Book;
 import org.example.bookshelf.entity.ReadStatus;
 import org.example.bookshelf.exception.BookNotFoundException;
+import org.example.bookshelf.mapper.BookMapper;
 import org.example.bookshelf.repository.BookRepository;
+import org.example.bookshelf.repository.BookSpecifications;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 public class BookService {
@@ -20,40 +23,56 @@ public class BookService {
         this.bookRepository = bookRepository;
     }
 
-    public Page<Book> getAllBooks(Pageable pageable) {
-        return bookRepository.findAll(pageable);
+    public Page<BookResponse> searchBooks(ReadStatus status, String author, String genre, Pageable pageable) {
+        Specification<Book> spec = Specification
+                .where(BookSpecifications.hasStatus(status))
+                .and(BookSpecifications.authorContains(author))
+                .and(BookSpecifications.genreContains(genre));
+
+        return bookRepository.findAll(spec, pageable)
+                .map(BookMapper::toResponse);
     }
 
-    public Optional<Book> getBookById(Long id) {
-        return bookRepository.findById(id);
-    }
-
-    public Page<Book> getBooksByStatus(ReadStatus status, Pageable pageable) {
-        return bookRepository.findByStatus(status, pageable);
-    }
-
-    public Page<Book> searchByAuthor(String author, Pageable pageable) {
-        return bookRepository.findByAuthorContainingIgnoreCase(author, pageable);
+    public BookResponse getBookById(Long id) {
+        return bookRepository.findById(id)
+                .map(BookMapper::toResponse)
+                .orElseThrow(() -> new BookNotFoundException(id));
     }
 
     @Transactional
-    public Book createBook(String title, String author, String genre, ReadStatus status, Integer rating) {
+    public BookResponse createBook(CreateBookRequest request) {
         Book book = Book.builder()
-                .title(title)
-                .author(author)
-                .genre(genre)
-                .status(status)
-                .rating(rating)
+                .title(request.getTitle())
+                .author(request.getAuthor())
+                .genre(request.getGenre())
+                .status(request.getStatus())
+                .rating(request.getRating())
                 .build();
 
-        return bookRepository.save(book);
+        Book saved = bookRepository.save(book);
+        return BookMapper.toResponse(saved);
     }
 
     @Transactional
-    public Book updateBook(Long id, UpdateBookRequest request) {
+    public BookResponse patchBook(Long id, PatchBookRequest request) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException(id));
 
-        book.set
+        if (request.getTitle() != null) book.setTitle(request.getTitle());
+        if (request.getAuthor() != null) book.setAuthor(request.getAuthor());
+        if (request.getGenre() != null) book.setGenre(request.getGenre());
+        if (request.getStatus() != null) book.setStatus(request.getStatus());
+        if (request.getRating() != null) book.setRating(request.getRating());
+
+        Book saved = bookRepository.save(book);
+        return BookMapper.toResponse(saved);
+    }
+
+    @Transactional
+    public void deleteBookById(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+
+        bookRepository.delete(book);
     }
 }

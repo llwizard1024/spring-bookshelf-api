@@ -1,13 +1,11 @@
 package org.example.bookshelf.dto.book;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.example.bookshelf.entity.ReadStatus;
 
 @Data
-public class UpdateBookRequest {
+public class CreateBookRequest {
     @NotBlank(message = "Title is required")
     @Size(min = 5, max = 255)
     private String title;
@@ -20,10 +18,10 @@ public class UpdateBookRequest {
     @Size(min = 2, max = 255)
     private String genre;
 
-    @NotBlank(message = "Status is required")
-    @Pattern(regexp = "WANT_TO_READ|READING|READ", message = "Status must be WANT_TO_READ or READING OR READ")
+    @NotNull
     private ReadStatus status;
 
-    @Size(max = 10)
+    @Min(1)
+    @Max(10)
     private Integer rating;
 }
