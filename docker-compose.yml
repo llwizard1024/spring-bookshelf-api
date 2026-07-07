@@ -30,4 +30,4 @@ services:
         condition: service_healthy
 
 volumes:
-  bankcards_pg_data:
+  bookshelf_pg_data:
