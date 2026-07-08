@@ -1,5 +1,6 @@
 package org.example.bookshelf.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.bookshelf.dto.book.BookResponse;
 import org.example.bookshelf.dto.book.CreateBookRequest;
 import org.example.bookshelf.dto.book.PatchBookRequest;
@@ -15,6 +16,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class BookService {
     private final BookRepository bookRepository;
@@ -41,6 +43,7 @@ public class BookService {
 
     @Transactional
     public BookResponse createBook(CreateBookRequest request) {
+        log.info("Creating book: title={}, author={}", request.getTitle(), request.getAuthor());
         Book book = Book.builder()
                 .title(request.getTitle())
                 .author(request.getAuthor())
@@ -50,11 +53,13 @@ public class BookService {
                 .build();
 
         Book saved = bookRepository.save(book);
+        log.info("Book created: id={}", saved.getId());
         return BookMapper.toResponse(saved);
     }
 
     @Transactional
     public BookResponse patchBook(Long id, PatchBookRequest request) {
+        log.info("Patching book: id={}", id);
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException(id));
 
@@ -65,6 +70,7 @@ public class BookService {
         if (request.getRating() != null) book.setRating(request.getRating());
 
         Book saved = bookRepository.save(book);
+        log.info("Book patched: id={}", saved.getId());
         return BookMapper.toResponse(saved);
     }
 
@@ -74,5 +80,6 @@ public class BookService {
                 .orElseThrow(() -> new BookNotFoundException(id));
 
         bookRepository.delete(book);
+        log.info("Book deleted: id={}", id);
     }
 }
