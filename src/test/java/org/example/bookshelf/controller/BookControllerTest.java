@@ -79,7 +79,7 @@ class BookControllerTest {
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.error").value("Validation failed"))
+                .andExpect(jsonPath("$.title").value("Validation failed"))
                 .andExpect(jsonPath("$.fields.title").exists());
     }
 
@@ -101,7 +101,7 @@ class BookControllerTest {
 
         mockMvc.perform(get("/api/books/99"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Book not found: 99"));
+                .andExpect(jsonPath("$.detail").value("Book not found: 99"));
     }
 
     @Test
@@ -161,7 +161,7 @@ class BookControllerTest {
                                 }
                                 """))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Book not found: 99"));
+                .andExpect(jsonPath("$.detail").value("Book not found: 99"));
     }
 
     @Test
@@ -181,7 +181,7 @@ class BookControllerTest {
         mockMvc.perform(delete("/api/books/99"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.error").value("Book not found: 99"));
+                .andExpect(jsonPath("$.detail").value("Book not found: 99"));
     }
 
     private static BookResponse sampleResponse() {
