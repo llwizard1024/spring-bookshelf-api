@@ -7,7 +7,7 @@ CREATE TABLE users (
     email           VARCHAR(255) NOT NULL UNIQUE,
     password_hash   VARCHAR(255) NOT NULL,
     avatar_url      VARCHAR(255),
-    display_name    VARCHAR(255) NOT NULL,
+    display_name    VARCHAR(30) NOT NULL,
     bio             TEXT,
     created_at      TIMESTAMPTZ  NOT NULL,
     updated_at      TIMESTAMPTZ
