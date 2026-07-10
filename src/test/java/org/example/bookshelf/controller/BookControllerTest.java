@@ -4,9 +4,11 @@ import org.example.bookshelf.dto.book.BookResponse;
 import org.example.bookshelf.entity.ReadStatus;
 import org.example.bookshelf.exception.BookNotFoundException;
 import org.example.bookshelf.exception.GlobalExceptionHandler;
+import org.example.bookshelf.security.JwtAuthFilter;
 import org.example.bookshelf.service.BookService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -28,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BookController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @Import(GlobalExceptionHandler.class)
 class BookControllerTest {
 
@@ -36,6 +39,9 @@ class BookControllerTest {
 
     @MockitoBean
     private BookService bookService;
+
+    @MockitoBean
+    private JwtAuthFilter jwtAuthFilter;
 
     @Test
     void createBook_returnsCreatedBook() throws Exception {

@@ -52,6 +52,30 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
+        log.warn("Invalid credentials: {}", ex.getMessage());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED,
+                ex.getMessage()
+        );
+        problem.setTitle("Invalid Credentials");
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ProblemDetail handleUserNotFound(UserNotFoundException ex) {
+        log.warn("User not found: {}", ex.getMessage());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage()
+        );
+        problem.setTitle("User Not Found");
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> fieldErrors = new HashMap<>();
